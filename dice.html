@@ -142,8 +142,8 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: opacity 0.3s ease-out;
-      z-index: 1000;
+      transition: opacity 0.1s ease-in-out;
+      z-index: 100;
     }
     .modal-overlay.is-visible {
       opacity: 1;
@@ -184,9 +184,9 @@
         <div class="face front"><div>ગુરુની અનિવાર્યતા</div></div>
         <div class="face back"><div>ભગવાનમાં શ્રદ્ધા અને ભગવાનનું બળ</div></div>
         <div class="face right"><div>અક્ષરપુરુષોત્તમ સિદ્ધાંત પ્રવર્તન</div></div>
-        <div class="face left"><div>સત્સંગ ભક્તિનો હેતુ અને રીત</div></div>
+        <div class="face left"><div>સત્સંગ, ભક્તિનો હેતુ અને રીત</div></div>
         <div class="face top"><div>અક્ષરબ્રહ્મ ગુરુનો પ્રસંગ</div></div>
-        <div class="face bottom"><div>સત્સંગ દીક્ષા મહિમા અને ફળ શ્રુતિ</div></div>
+        <div class="face bottom"><div>સત્સંગદીક્ષા મહિમા અને ફળશ્રુતિ</div></div>
       </div>
     </div>
     <br><br>
@@ -232,9 +232,9 @@
       { rotateX: 720, rotateY: 720, faceText: "ગુરુની અનિવાર્યતા" },
       { rotateX: 720, rotateY: 900, faceText: "ભગવાનમાં શ્રદ્ધા અને ભગવાનનું બળ" },
       { rotateX: 720, rotateY: 630, faceText: "અક્ષરપુરુષોત્તમ સિદ્ધાંત પ્રવર્તન" },
-      { rotateX: 720, rotateY: 810, faceText: "સત્સંગ, ભક્તિનો હેતુ અને રીત" },
+      { rotateX: 720, rotateY: 810, faceText: "સત્સંગ ભક્તિનો હેતુ અને રીત" },
       { rotateX: 630, rotateY: 720, faceText: "અક્ષરબ્રહ્મ ગુરુનો પ્રસંગ" },
-      { rotateX: 810, rotateY: 720, faceText: "સત્સંગદીક્ષા મહિમા અને ફળશ્રુતિ" },
+      { rotateX: 810, rotateY: 720, faceText: "સત્સંગ દીક્ષા મહિમા અને ફળ શ્રુતિ" },
     ];
 
     function shuffleFaces() {
@@ -300,7 +300,7 @@
             resetButton.style.display = "inline-block";
           }
         }, 50);
-      }, 5100);
+      }, 3500);
     }
 
     function resetDice() {
