@@ -1,39 +1,371 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Background Image Example</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      width: 100vw;
-      background-image: url('../mainbg.png');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: 4fr 8fr; /* 2:10 ratio */
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission Rajipo - Dice</title>
 
-    
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    .right {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgb(255, 255, 255);
-      font-size: 2rem;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-      margin-top: 3%;
-      
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;700;900&display=swap" rel="stylesheet" />
+
+ <style>
+  body {
+    background-image: url("bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    height: 100vh;
+    margin: 0;
+    font-family: "Noto Sans Gujarati", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  ::selection {
+    background-color: #ff7b00;
+    color: #fff;
+  }
+
+  /* Perfectly center dice + button vertically and horizontally */
+  .dice-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 2.5rem;
+    width: 100%;
+    height: 100%;
+    max-width: 600px;
+    padding-top: 4vh;
+    padding-bottom: 4vh;
+    box-sizing: border-box;
+  }
+
+  .dice-container {
+    perspective: 1400px;
+    width: clamp(220px, 30vw, 340px);
+    height: clamp(220px, 30vw, 340px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cube {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 7s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Noto Sans Gujarati", sans-serif;
+    font-size: clamp(1.8rem, 2vw, 1.5rem);
+    font-weight: 700;
+    border-radius: 20px;
+    color: #ffffff;
+    text-align: center;
+    padding: 1.5rem;
+    border: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Distinct high-variance dice colors with 3 lighter shades each */
+
+.front  { 
+  background: linear-gradient(
+    to bottom,
+    #5a0b0b,   /* dark crimson */
+    #802020,
+    #a63a3a,
+    #cc5555
+  ); 
+}
+
+.back   { 
+  background: linear-gradient(
+    to bottom,
+    #0b3a5a,   /* dark teal blue */
+    #205c80,
+    #3380a6,
+    #55aad1
+  ); 
+}
+
+.right  { 
+  background: linear-gradient(
+    to bottom,
+    #4b1f64,   /* deep violet */
+    #69308a,
+    #8650b1,
+    #a36fd8
+  ); 
+}
+
+.left   { 
+  background: linear-gradient(
+    to bottom,
+    #1b4332,   /* forest green */
+    #2c664c,
+    #3d8966,
+    #4ebc80
+  ); 
+}
+
+.top    { 
+  background: linear-gradient(
+    to bottom,
+    #6c4a00,   /* dark golden brown */
+    #8f6700,
+    #b38400,
+    #d6a100
+  ); 
+}
+
+.bottom { 
+  background: linear-gradient(
+    to bottom,
+    #4f0023,   /* dark magenta */
+    #7a1a44,
+    #a63366,
+    #d04d88
+  ); 
+}
+
+  .front  { transform: rotateY(0deg) translateZ(170px); }
+  .back   { transform: rotateY(180deg) translateZ(170px); }
+  .right  { transform: rotateY(90deg) translateZ(170px); }
+  .left   { transform: rotateY(-90deg) translateZ(170px); }
+  .top    { transform: rotateX(90deg) translateZ(170px); }
+  .bottom { transform: rotateX(-90deg) translateZ(170px); }
+
+  /* Buttons: dark orange to red gradient */
+  #rollButton, #resetButton {
+    transition: all 0.3s ease-in-out;
+    background: linear-gradient(135deg, #b33a00, #7a0000);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 9999px;
+    padding: 1rem 3rem;
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+  }
+
+  #rollButton:hover, #resetButton:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  }
+
+  #resetButton {
+    display: none;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* no overlay background */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    z-index: 100;
+  }
+
+  .modal-overlay.is-visible {
+    opacity: 1;
+  }
+
+  .modal-content {
+    background: #ffffff; /* unchanged */
+    color: #000000;      /* unchanged */
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    transform: scale(0.8);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .modal-overlay.is-visible .modal-content {
+    transform: scale(1);
+  }
+
+  .colorful-text {
+    color: #000000;
+    font-weight: 900;
+    font-size: 1.9rem;
+    font-family: "Noto Sans Gujarati", sans-serif;
+  }
+
+  /* Responsive for smaller heights */
+  @media (max-height: 600px) {
+    .dice-wrapper {
+      gap: 1.5rem;
+      padding-top: 2vh;
+      padding-bottom: 2vh;
     }
-  </style>
+    .dice-container {
+      width: clamp(180px, 40vw, 260px);
+      height: clamp(180px, 40vw, 260px);
+    }
+  }
+</style>
+
 </head>
+
 <body>
-  <div class="left"></div>
-  <div class="right">
-<object data="./dice.html" type="text/html" width="500%" height="500%"></object>  
-</div>
+
+  <!-- Centered Dice Section -->
+  <div class="dice-wrapper">
+    <div class="dice-container">
+      <div id="cube" class="cube">
+        <div class="face front"><div>ગુરુની અનિવાર્યતા</div></div>
+        <div class="face back"><div>ભગવાનમાં શ્રદ્ધા અને ભગવાનનું બળ</div></div>
+        <div class="face right"><div>અક્ષરપુરુષોત્તમ સિદ્ધાંત પ્રવર્તન</div></div>
+        <div class="face left"><div>સત્સંગ, ભક્તિનો હેતુ અને રીત</div></div>
+        <div class="face top"><div>અક્ષરબ્રહ્મ ગુરુનો પ્રસંગ</div></div>
+        <div class="face bottom"><div>સત્સંગદીક્ષા મહિમા અને ફળશ્રુતિ</div></div>
+      </div>
+    </div>
+    <br><br>
+
+    <div class="flex flex-col items-center gap-4">
+      <button id="rollButton">Roll Dice</button>
+      <button id="resetButton">Run Again</button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="result-modal" class="modal-overlay">
+    <div class="modal-content">
+      <p id="modalTopicDisplay" class="colorful-text mt-4 mb-6 pt-10 pb-4"></p>
+      <button
+        onclick="closeModal()"
+        class="mt-4 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full shadow-md transition duration-200"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const cube = document.getElementById("cube");
+    const rollButton = document.getElementById("rollButton");
+    const resetButton = document.getElementById("resetButton");
+    const resultModal = document.getElementById("result-modal");
+    const modalTopicDisplay = document.getElementById("modalTopicDisplay");
+
+    let isRolling = false;
+    let availableFaces = [];
+    let rollCount = 0;
+
+    const rotationMap = [
+      { rotateX: 720, rotateY: 720, faceText: "ગુરુની અનિવાર્યતા" },
+      { rotateX: 720, rotateY: 900, faceText: "ભગવાનમાં શ્રદ્ધા અને ભગવાનનું બળ" },
+      { rotateX: 720, rotateY: 630, faceText: "અક્ષરપુરુષોત્તમ સિદ્ધાંત પ્રવર્તન" },
+      { rotateX: 720, rotateY: 810, faceText: "સત્સંગ ભક્તિનો હેતુ અને રીત" },
+      { rotateX: 630, rotateY: 720, faceText: "અક્ષરબ્રહ્મ ગુરુનો પ્રસંગ" },
+      { rotateX: 810, rotateY: 720, faceText: "સત્સંગ દીક્ષા મહિમા અને ફળ શ્રુતિ" },
+    ];
+
+    function shuffleFaces() {
+      availableFaces = [0, 1, 2, 3, 4, 5];
+      availableFaces.sort(() => Math.random() - 0.5);
+      rollCount = 0;
+    }
+
+    function closeModal() {
+      resultModal.classList.remove("is-visible");
+      setTimeout(() => (resultModal.style.display = "none"), 300);
+    }
+
+    function showResultModal(topic) {
+      modalTopicDisplay.textContent = topic;
+      resultModal.style.display = "flex";
+      setTimeout(() => resultModal.classList.add("is-visible"), 10);
+
+      // Confetti (no sound)
+      confetti({ particleCount: 180, spread: 360, origin: { y: 0.5 } });
+    }
+
+    function rollDice() {
+      if (isRolling || rollCount >= 6) return;
+      closeModal();
+
+      if (availableFaces.length === 0) {
+        //rollButton.textContent = "All 6 Topics Shown!";
+        rollButton.disabled = true;
+        resetButton.style.display = "inline-block";
+        return;
+      }
+
+      isRolling = true;
+      rollButton.disabled = true;
+      rollButton.textContent = "Rolling...";
+
+      const nextFaceIndex = availableFaces.pop();
+      const rotation = rotationMap[nextFaceIndex];
+      cube.style.transform = `rotateX(${rotation.rotateX}deg) rotateY(${rotation.rotateY}deg)`;
+
+      setTimeout(() => {
+        showResultModal(rotation.faceText);
+        cube.style.transition = "none";
+        cube.style.transform = `rotateX(${rotation.rotateX % 360}deg) rotateY(${rotation.rotateY % 360}deg)`;
+        setTimeout(() => {
+          cube.style.transition = "transform 7s cubic-bezier(0.19, 1, 0.22, 1)";
+          isRolling = false;
+          rollButton.disabled = false;
+          rollButton.textContent = "Roll Dice";
+          rollCount++;
+
+          if (rollCount === 6) {
+            rollButton.textContent = "All 6 Topics Shown!";
+            rollButton.disabled = true;
+            resetButton.style.display = "inline-block";
+          }
+        }, 50);
+      }, 3500);
+    }
+
+    function resetDice() {
+      shuffleFaces();
+      rollButton.disabled = false;
+      rollButton.textContent = "Roll Dice";
+      resetButton.style.display = "none";
+    }
+
+    window.onload = function () {
+      shuffleFaces();
+      rollButton.addEventListener("click", rollDice);
+      resetButton.addEventListener("click", resetDice);
+      resultModal.addEventListener("click", (e) => {
+        if (e.target === resultModal) closeModal();
+      });
+    };
+  </script>
 </body>
 </html>
