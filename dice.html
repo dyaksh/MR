@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission Rajipo - Dice</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      /*background-image: url("Bg.png");*/
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      height: 100vh;
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    ::selection {
+      background-color: #f97316;
+      color: #fff;
+    }
+
+    /* Logo Top-Right */
+    .logo-image {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      width: 140px;
+      height: auto;
+      border-radius: 0.75rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Dice Container */
+    .dice-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 2rem;
+      width: 100%;
+      max-width: 600px;
+      padding: 2rem;
+    }
+
+    .dice-container {
+      perspective: 1400px;
+      width: clamp(250px, 30vw, 340px);
+      height: clamp(250px, 30vw, 340px);
+    }
+
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 7s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Noto Sans Gujarati", sans-serif;
+      font-size: clamp(2rem, 2vw, 1.5rem);
+      font-weight: 700;
+      border-radius: 20px;
+      color: #000;
+      text-align: center;
+      padding: 1.5rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Pastel Shades */
+    .front { background: #a5b4fc; }
+    .back { background: #86efac; }
+    .right { background: #fdba74; }
+    .left { background: #f9a8d4; }
+    .top { background: #c4b5fd; }
+    .bottom { background: #fde68a; }
+
+    .front  { transform: rotateY(0deg) translateZ(170px); }
+    .back   { transform: rotateY(180deg) translateZ(170px); }
+    .right  { transform: rotateY(90deg) translateZ(170px); }
+    .left   { transform: rotateY(-90deg) translateZ(170px); }
+    .top    { transform: rotateX(90deg) translateZ(170px); }
+    .bottom { transform: rotateX(-90deg) translateZ(170px); }
+
+    /* Buttons */
+    #rollButton, #resetButton {
+      transition: all 0.3s ease-in-out;
+      background: linear-gradient(135deg,  #fe0f0f , #e48929);
+      box-shadow: 0 8px 20px rgba(147, 51, 234, 0.4);
+      border: none;
+      color: white;
+      font-weight: 600;
+      border-radius: 9999px;
+      padding: 1rem 3rem;
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+    }
+
+    #rollButton:hover, #resetButton:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(147, 51, 234, 0.5);
+    }
+
+    #resetButton {
+      display: none;
+      background: linear-gradient(135deg, #10b981, #3b82f6);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* background-color: rgba(0, 0, 0, 0.6); */
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease-out;
+      z-index: 1000;
+    }
+    .modal-overlay.is-visible {
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      padding: 2.5rem;
+      border-radius: 1.5rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      transform: scale(0.8);
+      transition: transform 0.3s ease-in-out;
+    }
+    .modal-overlay.is-visible .modal-content {
+      transform: scale(1);
+    }
+
+    .colorful-text {
+      color: #6d28d9;
+      font-weight: 900;
+      font-size: 1.9rem;
+      font-family: "Noto Sans Gujarati", sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Logo 
+  <img src="logo.png" alt="Logo" class="logo-image" />-->
+
+  <!-- Centered Dice Section -->
+  <div class="dice-wrapper">
+    <div class="dice-container">
+      <div id="cube" class="cube">
+        <div class="face front"><div>ગુરુની અનિવાર્યતા</div></div>
+        <div class="face back"><div>ભગવાનમાં શ્રદ્ધા અને ભગવાનનું બળ</div></div>
+        <div class="face right"><div>અક્ષરપુરુષોત્તમ સિદ્ધાંત પ્રવર્તન</div></div>
+        <div class="face left"><div>સત્સંગ ભક્તિનો હેતુ અને રીત</div></div>
+        <div class="face top"><div>અક્ષરબ્રહ્મ ગુરુનો પ્રસંગ</div></div>
+        <div class="face bottom"><div>સત્સંગ દીક્ષા મહિમા અને ફળ શ્રુતિ</div></div>
+      </div>
+    </div>
+    <br><br>
+
+    <div class="flex flex-col items-center gap-4">
+      <button id="rollButton">Roll Dice</button>
+      <button id="resetButton">Run Again</button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="result-modal" class="modal-overlay">
+    <div class="modal-content">
+      <p id="modalTopicDisplay" class="colorful-text mt-4 mb-6 pt-10 pb-4"></p>
+      <button
+        onclick="closeModal()"
+        class="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-full shadow-md transition duration-200"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const cube = document.getElementById("cube");
+    const rollButton = document.getElementById("rollButton");
+    const resetButton = document.getElementById("resetButton");
+    const resultModal = document.getElementById("result-modal");
+    const modalTopicDisplay = document.getElementById("modalTopicDisplay");
+
+    let isRolling = false;
+    let availableFaces = [];
+    let rollCount = 0;
+
+    // 🎵 Add sound effects (Pixabay-hosted, free to use)
+    const diceRollSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_35d8e3039d.mp3");
+    const confettiSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_609a962702.mp3");
+
+    diceRollSound.volume = 0.7;
+    confettiSound.volume = 0.8;
+
+    const rotationMap = [
+      { rotateX: 720, rotateY: 720, faceText: "ગુરુની અનિવાર્યતા" },
+      { rotateX: 720, rotateY: 900, faceText: "ભગવાનમાં શ્રદ્ધા અને ભગવાનનું બળ" },
+      { rotateX: 720, rotateY: 630, faceText: "અક્ષરપુરુષોત્તમ સિદ્ધાંત પ્રવર્તન" },
+      { rotateX: 720, rotateY: 810, faceText: "સત્સંગ ભક્તિનો હેતુ અને રીત" },
+      { rotateX: 630, rotateY: 720, faceText: "અક્ષરબ્રહ્મ ગુરુનો પ્રસંગ" },
+      { rotateX: 810, rotateY: 720, faceText: "સત્સંગ દીક્ષા મહિમા અને ફળ શ્રુતિ" },
+    ];
+
+    function shuffleFaces() {
+      availableFaces = [0, 1, 2, 3, 4, 5];
+      availableFaces.sort(() => Math.random() - 0.5);
+      rollCount = 0;
+    }
+
+    function closeModal() {
+      resultModal.classList.remove("is-visible");
+      setTimeout(() => (resultModal.style.display = "none"), 300);
+    }
+
+    function showResultModal(topic) {
+      modalTopicDisplay.textContent = topic;
+      resultModal.style.display = "flex";
+      setTimeout(() => resultModal.classList.add("is-visible"), 10);
+
+      // 🎉 Confetti + sound
+      confettiSound.currentTime = 0;
+      confettiSound.play();
+
+      confetti({ particleCount: 200, spread: 360, origin: { y: 0.5 } });
+    }
+
+    function rollDice() {
+      if (isRolling || rollCount >= 6) return;
+      closeModal();
+
+      if (availableFaces.length === 0) {
+        rollButton.textContent = "All 6 Topics Shown!";
+        rollButton.disabled = true;
+        resetButton.style.display = "inline-block";
+        return;
+      }
+
+      isRolling = true;
+      rollButton.disabled = true;
+      rollButton.textContent = "Rolling...";
+
+      // 🎲 Dice roll sound
+      diceRollSound.currentTime = 0;
+      diceRollSound.play();
+
+      const nextFaceIndex = availableFaces.pop();
+      const rotation = rotationMap[nextFaceIndex];
+      cube.style.transform = `rotateX(${rotation.rotateX}deg) rotateY(${rotation.rotateY}deg)`;
+
+      setTimeout(() => {
+        showResultModal(rotation.faceText);
+        cube.style.transition = "none";
+        cube.style.transform = `rotateX(${rotation.rotateX % 360}deg) rotateY(${rotation.rotateY % 360}deg)`;
+        setTimeout(() => {
+          cube.style.transition = "transform 7s cubic-bezier(0.19, 1, 0.22, 1)";
+          isRolling = false;
+          rollButton.disabled = false;
+          rollButton.textContent = "Roll Dice";
+          rollCount++;
+
+          if (rollCount === 6) {
+            rollButton.textContent = "All 6 Topics Shown!";
+            rollButton.disabled = true;
+            resetButton.style.display = "inline-block";
+          }
+        }, 50);
+      }, 7100);
+    }
+
+    function resetDice() {
+      shuffleFaces();
+      rollButton.disabled = false;
+      rollButton.textContent = "Roll Dice";
+      resetButton.style.display = "none";
+    }
+
+    window.onload = function () {
+      shuffleFaces();
+      rollButton.addEventListener("click", rollDice);
+      resetButton.addEventListener("click", resetDice);
+      resultModal.addEventListener("click", (e) => {
+        if (e.target === resultModal) closeModal();
+      });
+    };
+  </script>
+</body>
+</html>
